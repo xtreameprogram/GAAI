@@ -42,7 +42,6 @@ def allConnect(oPoing, point, tem, worldLines):
 				return False
 	return True
 
-
 # Creates a pathnode network that connects the midpoints of each navmesh together
 def myCreatePathNetwork(world, agent = None):
 	nodes = []
@@ -55,18 +54,42 @@ def myCreatePathNetwork(world, agent = None):
 	dimensions = world.getDimensions()
 	taboo = set([(0,0), (0, dimensions[1]), (dimensions[0], 0), (dimensions[0], dimensions[1])])
 	# print(taboo)
+
+	def obstacleInPoly(polygon):
+		print polygon
+		for point in (list((set(world.getPoints()) - taboo) - set(polygon))):
+			if pointInsidePolygonPoints(point, polygon):
+				return True
+		return False
+
+
 	for point in world.getPoints():
 		temp = set()
-
+		tempLines = set()
 		for oPoint in  world.getPoints():
 			# if oPoint == (0,0):
 				# print point, oPoint, ((oPoint in taboo and point not in taboo) or (oPoint not in taboo and point in taboo) or (oPoint not in taboo and point not in taboo))
-			if ((oPoint in taboo and point not in taboo) or (oPoint not in taboo and point in taboo) or (oPoint not in taboo and point not in taboo)) and rayTraceWorldNoEndPoints(point, oPoint, lines) is None:
+			if ((oPoint in taboo and point not in taboo) or (oPoint not in taboo and point in taboo) or (oPoint not in taboo and point not in taboo)) and point is not oPoint: # and rayTraceWorldNoEndPoints(point, oPoint, lines) is None
 				if allConnect(point, oPoint, temp, world.getLinesWithoutBorders()):
 					temp.add(oPoint)
 					temp.add(point)
-					lines.append((point, oPoint))
-		polys.append(list(temp))
+					tempLines.add((point, oPoint))
+		if (len(temp) > 2) and not obstacleInPoly(list(temp)) and isConvex(list(temp)):
+			polys.append(list(temp))
+			lines += list(tempLines)
+		
+	# for poly1 in polys:
+		# for poly2 in polys:
+			# if poly1 is not poly2:
+				# print poly1, poly2
+
+
+
+	
+	i = 4
+	polys = polys[i:i+1]
+	print obstacleInPoly(polys[0])
+	
 	
 	# print lines
 	# for line in lines:
@@ -90,6 +113,6 @@ def myCreatePathNetwork(world, agent = None):
 	# 			used.append(nodes[i])
 	# 			used.append(nodes[j])
 
-	return nodes, list(set(edges)), polys
+	return nodes, edges, polys
 
 	
