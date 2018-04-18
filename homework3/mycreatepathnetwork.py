@@ -33,14 +33,26 @@ def occurrence(point, lst):
 def calcMid(p1, p2):
 	return ((p1[0] + p2[0])/2., (p1[1] + p2[1])/2.)
 
+def isParallel(p1, p2, p3, p4, lines):
+	return (p2[1] - p1[1])/(p2[0] - p1[0]) == (p4[1] - p3[1])/(p4[0] - p3[0])
+
+def rayTraceWorldNoEndPointsMine(point, node, worldLines):
+	for line in worldLines:
+		if rayTraceNoEndpoints(point, node, line) not is None and :
+			return False
+
 def allConnect(oPoing, point, tem, worldLines):
 	temp = list(tem)
 	temp.append(oPoing)
 	for node in temp:
 		if node is not point:
-			if rayTraceWorldNoEndPoints(point, node, worldLines) is not None or pointInsidePolygonLines(calcMid(point, node), worldLines):
+			if (rayTraceWorldNoEndPointsMine(point, node, worldLines)) is not None or pointInsidePolygonLines(calcMid(point, node), worldLines):
 				return False
 	return True
+
+def appendNoDuplicates(item, list):
+	if not item in list:
+		list.append(item)
 
 # Creates a pathnode network that connects the midpoints of each navmesh together
 def myCreatePathNetwork(world, agent = None):
@@ -56,7 +68,6 @@ def myCreatePathNetwork(world, agent = None):
 	# print(taboo)
 
 	def obstacleInPoly(polygon):
-		print polygon
 		for point in (list((set(world.getPoints()) - taboo) - set(polygon))):
 			if pointInsidePolygonPoints(point, polygon):
 				return True
@@ -64,19 +75,19 @@ def myCreatePathNetwork(world, agent = None):
 
 
 	for point in world.getPoints():
-		temp = set()
-		tempLines = set()
+		temp = []
+		tempLines = []
 		for oPoint in  world.getPoints():
 			# if oPoint == (0,0):
 				# print point, oPoint, ((oPoint in taboo and point not in taboo) or (oPoint not in taboo and point in taboo) or (oPoint not in taboo and point not in taboo))
-			if ((oPoint in taboo and point not in taboo) or (oPoint not in taboo and point in taboo) or (oPoint not in taboo and point not in taboo)) and point is not oPoint: # and rayTraceWorldNoEndPoints(point, oPoint, lines) is None
-				if allConnect(point, oPoint, temp, world.getLinesWithoutBorders()):
-					temp.add(oPoint)
-					temp.add(point)
-					tempLines.add((point, oPoint))
-		if (len(temp) > 2) and not obstacleInPoly(list(temp)) and isConvex(list(temp)):
-			polys.append(list(temp))
-			lines += list(tempLines)
+			 # and rayTraceWorldNoEndPoints(point, oPoint, lines) is None
+			if allConnect(point, oPoint, temp, world.getLinesWithoutBorders()):
+				appendNoDuplicates(oPoint, temp)
+				appendNoDuplicates(point, temp)
+				appendLineNoDuplicates((point, oPoint), tempLines)
+		if (len(temp) > 2) and not obstacleInPoly(temp) and isConvex(temp):
+			polys.append(temp)
+			lines += tempLines
 		
 	# for poly1 in polys:
 		# for poly2 in polys:
@@ -86,9 +97,9 @@ def myCreatePathNetwork(world, agent = None):
 
 
 	
-	i = 4
-	polys = polys[i:i+1]
-	print obstacleInPoly(polys[0])
+	# i = 5
+	# polys = polys[i:i+1]
+	# print obstacleInPoly(polys[0])
 	
 	
 	# print lines

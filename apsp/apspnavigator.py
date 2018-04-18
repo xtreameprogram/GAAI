@@ -66,6 +66,7 @@ class APSPNavigator(NavMeshNavigator):
 			else:
 				start = findClosestUnobstructed(source, self.pathnodes, self.world.getLines())
 				end = findClosestUnobstructed(dest, self.pathnodes, self.world.getLines())
+				print start, end
 				if start != None and end != None and start in self.dist and end in self.dist[start] and self.dist[start][end] < INFINITY:
 					path = findPath(start, end, self.next)
 					path = shortcutPath(source, dest, path, self.world, self.agent)
@@ -102,6 +103,7 @@ def findPath(start, end, next):
 		start = next[start][end]
 		path.append(start)
 	### YOUR CODE GOES ABOVE HERE ###
+
 	return path
 
 
@@ -122,17 +124,17 @@ def APSP(nodes, edges):
 		point1 = edge[0]
 		point2 = edge[1]
 		dist[point1][point2] = distance(point1, point2)
+		dist[point2][point1] = distance(point1, point2)
 		next[point1][point2] = point2
+		next[point2][point1] = point1
 	for k in nodes:
 		for i in nodes:
 			for j in nodes:
 				if dist[i][j] > dist[i][k] + dist[k][j]:
 					dist[i][j] = dist[i][k] + dist[k][j]
 					next[i][j] = next[i][k]
-					
 	# print next
 	### YOUR CODE GOES ABOVE HERE ###
-	print next
 	return next, dist
 
 ### Returns true if the agent can get from p1 to p2 directly without running into an obstacle.
@@ -141,7 +143,10 @@ def APSP(nodes, edges):
 ### worldLines: all the lines in the world
 ### agent: the Agent object
 def clearShot(p1, p2, worldLines, worldPoints, agent):
+	# return True
 	### YOUR CODE GOES BELOW HERE ###
+	# if rayTraceWorld(p1, p2, worldLines) is not None:
+	# 	return False
 	agentL = 25
 	for line in worldLines:
 		rt1 = rayTrace(p1, p2, line)
@@ -149,7 +154,7 @@ def clearShot(p1, p2, worldLines, worldPoints, agent):
 		rt3 = rayTrace((p1[0]+agentL, p1[1]), (p2[0]+agentL, p2[1]), line)
 		rt4 = rayTrace((p1[0], p1[1]-agentL), (p2[0], p2[1]-agentL), line)
 		rt5 = rayTrace((p1[0], p1[1]+agentL), (p2[0], p2[1]+agentL), line)
-		if rt1 is None and rt2 is None and rt3 is None and rt4 is None and rt5 is None:
-			return True
+		if rt1 is not None or rt2 is not None or rt3 is not None or rt4 is not None or rt5 is not None:
+			return False
 	### YOUR CODE GOES ABOVE HERE ###
-	return False
+	return True
