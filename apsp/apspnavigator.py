@@ -83,13 +83,6 @@ class APSPNavigator(NavMeshNavigator):
 
 
 
-
-
-
-
-
-
-
 ### Returns a path as a list of points in the form (x, y)
 ### start: the start node, one of the nodes in the path network
 ### end: the end node, one of the nodes in the path network
@@ -98,10 +91,11 @@ def findPath(start, end, next):
 	### YOUR CODE GOES BELOW HERE ###
 	if next[start][end] is None:
 		return []
-	path = [start]
-	while not (start is end):
-		start = next[start][end]
-		path.append(start)
+	path = []
+	while  (start != end):
+		if start != None:
+			start = next[start][end]
+			path.append(start)
 	### YOUR CODE GOES ABOVE HERE ###
 
 	return path
@@ -110,29 +104,64 @@ def findPath(start, end, next):
 
 	
 def APSP(nodes, edges):
+	# dist = {} # a dictionary of dictionaries. dist[p1][p2] will give you the distance.
+	# next = {} # a dictionary of dictionaries. next[p1][p2] will give you the next node to go to, or None
+	# for n in nodes:
+	# 	next[n] = {}
+	# 	dist[n] = {}
+	# ### YOUR CODE GOES BELOW HERE ###
+	# for n in nodes:
+	# 	for n2 in nodes:
+	# 		dist[n][n2] = INFINITY
+	# 		dist[n2][n] = INFINITY
+	# 		if n == n2:
+	# 			dist[n][n2] = 0
+	# 			dist[n2][n] = 0
+	# 		next[n][n2] = None
+	# 		next[n2][n] = None
+	# for edge in edges:
+	# 	point1 = edge[0]
+	# 	point2 = edge[1]
+	# 	dist[point1][point2] = distance(point1, point2)
+	# 	dist[point2][point1] = distance(point1, point2)
+	# 	next[point1][point2] = point2
+	# 	next[point2][point1] = point1
+	# for k in nodes:
+	# 	for i in nodes:
+	# 		for j in nodes:
+	# 			if dist[i][j] > dist[i][k] + dist[k][j]:
+	# 				dist[i][j] = dist[i][k] + dist[k][j]
+	# 				next[i][j] = next[i][k]
 	dist = {} # a dictionary of dictionaries. dist[p1][p2] will give you the distance.
 	next = {} # a dictionary of dictionaries. next[p1][p2] will give you the next node to go to, or None
 	for n in nodes:
 		next[n] = {}
 		dist[n] = {}
 	### YOUR CODE GOES BELOW HERE ###
-	for n in nodes:
+	for n1 in nodes:
 		for n2 in nodes:
-			dist[n][n2] = float("inf")
-			next[n][n2] = None
-	for edge in edges:
-		point1 = edge[0]
-		point2 = edge[1]
-		dist[point1][point2] = distance(point1, point2)
-		dist[point2][point1] = distance(point1, point2)
-		next[point1][point2] = point2
-		next[point2][point1] = point1
+			next[n1][n2] = None
+			next[n2][n1] = None
+			if n1 == n2:
+				dist[n1][n2] = 0
+				dist[n2][n1] = 0
+			else:
+				dist[n1][n2] = INFINITY
+				dist[n2][n1] = INFINITY
+	d = INFINITY
+	for e in edges:
+		d = distance(e[0], e[1])
+		dist[e[0]][e[1]] = d
+		dist[e[1]][e[0]] = d
+		#added
+		next[e[0]][e[1]] = e[1]
+		next[e[1]][e[0]] = e[0]
 	for k in nodes:
 		for i in nodes:
 			for j in nodes:
-				if dist[i][j] > dist[i][k] + dist[k][j]:
+				if dist[i][k] + dist[k][j] < dist[i][j]:
 					dist[i][j] = dist[i][k] + dist[k][j]
-					next[i][j] = next[i][k]
+					next[i][j] = next[i][k]#WHY WAS THIS K?
 	# print next
 	### YOUR CODE GOES ABOVE HERE ###
 	return next, dist
