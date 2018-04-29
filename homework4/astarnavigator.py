@@ -104,23 +104,18 @@ def unobstructedNetwork(network, worldLines):
 			newnetwork.append(l)
 	return newnetwork
 
+def get_f_value(initial, goal, new):
+	g = distance(initial, new)
+	h = distance(new, goal)
+	return g + h, g, h
 
-def get_lowest_f(initial, goal, open, path):
-	current_path_distance = 0
-	if len(path) > 0:
-		current_path_distance = distance(initial, path[0])
-		for i in xrange(1, len(path)):
-			current_path_distance += distance(path[i], path[i-1])
-	else:
-		path.append(initial)
-	print path[-1], open[0]
-	#print distance(path[-1], open[0])# + distance(open[0], goal)
-	current_lowest = (open[0], current_path_distance + distance(path[-1], open[0]) + distance(open[0], goal))
-	for node in open:
-		calculated_f = (current_path_distance + distance(path[-1], node) + distance(node, goal))
-		if calculated_f < current_lowest[1]:
-			current_lowest = (node, calculated_f)
+def get_lowest_f(initial, goal, list):
+	current_lowest = (list[0], get_f_value(initial, goal, list[0])[0])
+	for node in list:
+		if get_f_value(initial, goal, node)[0] < current_lowest[1]:
+			current_lowest = (node, get_f_value(initial, goal, node)[0])
 	return current_lowest[0]
+
 
 def astar(init, goal, network):
 	#print network
@@ -128,12 +123,35 @@ def astar(init, goal, network):
 	open = []
 	closed = []
 	### YOUR CODE GOES BELOW HERE ###
-	for node in network:
-		open.append(node)
-	while len(open) != 0:
-		current_node = get_lowest_f(init, goal, open, path)
+	neighbors = {} #Creates a dictionary to easily grab and store neighbor information
+	for node in network: 
+		if node[0] in neighbors:
+			neighbors[node[0]].append(node[1])
+		else:
+			neighbors[node[0]] = []
+			neighbors[node[0]].append(node[1])
+
+		if node[1] in neighbors:
+			neighbors[node[1]].append(node[0])
+		else:
+			neighbors[node[1]] = []
+			neighbors[node[1]].append(node[0])
+
+	# print neighbors
+	open.append(init)
+	current_node = open[0]
+	while open:
+		current_node = get_lowest_f(init, goal, open)
 		if current_node == goal:
-			break
+			return path, closed
+		open.remove(current_node)
+		closed.append(current_node)
+		for neighbor in neighbors[current_node]:
+			if neighbor not in closed:
+				if neighbor not in open:
+					open.append(neighbor)
+				else:
+					path.append(neighbor)
 		
 	### YOUR CODE GOES ABOVE HERE ###
 	return path, closed
