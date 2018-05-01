@@ -104,13 +104,13 @@ def unobstructedNetwork(network, worldLines):
 			newnetwork.append(l)
 	return newnetwork
 
-def get_f_value(initial, goal, new):
+def get_f_value(initial, goal, new): #Gets the f, g, and h values for a node
 	g = distance(initial, new)
 	h = distance(new, goal)
 	return g + h, g, h
 
 def get_lowest_f(initial, goal, list):
-	current_lowest = (list[0], get_f_value(initial, goal, list[0])[0])
+	current_lowest = (list[0], get_f_value(initial, goal, list[0])[0])#Just iterates through all of the nodes and grabs the one with the lowest F value
 	for node in list:
 		if get_f_value(initial, goal, node)[0] < current_lowest[1]:
 			current_lowest = (node, get_f_value(initial, goal, node)[0])
@@ -124,25 +124,25 @@ def astar(init, goal, network):
 	closed = []
 	### YOUR CODE GOES BELOW HERE ###
 	neighbors = {} #Creates a dictionary to easily grab and store neighbor information
-	for node in network: 
-		if node[0] in neighbors:
-			neighbors[node[0]].append(node[1])
+	for edge in network: 
+		if edge[0] in neighbors:
+			neighbors[edge[0]].append(edge[1])
 		else:
-			neighbors[node[0]] = []
-			neighbors[node[0]].append(node[1])
+			neighbors[edge[0]] = []
+			neighbors[edge[0]].append(edge[1])
 
-		if node[1] in neighbors:
-			neighbors[node[1]].append(node[0])
+		if edge[1] in neighbors:
+			neighbors[edge[1]].append(edge[0])
 		else:
-			neighbors[node[1]] = []
-			neighbors[node[1]].append(node[0])
+			neighbors[edge[1]] = []
+			neighbors[edge[1]].append(edge[0])
 
 	# print neighbors
 	open.append(init)
-	current_node = open[0]
 	while open:
 		current_node = get_lowest_f(init, goal, open)
 		if current_node == goal:
+			path.append(goal)
 			return path, closed
 		open.remove(current_node)
 		closed.append(current_node)
@@ -150,18 +150,15 @@ def astar(init, goal, network):
 			if neighbor not in closed:
 				if neighbor not in open:
 					open.append(neighbor)
-				else:
-					path.append(neighbor)
+		path.append(current_node)
 		
 	### YOUR CODE GOES ABOVE HERE ###
-	return path, closed
-	
-	
+	return [], closed
 
 
 def myUpdate(nav, delta):
 	### YOUR CODE GOES BELOW HERE ###
-
+	
 	### YOUR CODE GOES ABOVE HERE ###
 	return None
 
